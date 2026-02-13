@@ -8,7 +8,7 @@ HTML5, CSS3
 
 JavaScript (Vanilla JS)
 
-Express JS
+Express JS (Node JS)
 
 Mongo DB
 
