@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Checkout</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    </head>
+    <body>
+        <h1>Checkout</h1>
+        <div id="checkoutCart"></div>
+        <p>Total: $<span id="grandTotal">0</span></p>
+        <button onclick="placeOrder()">Place Order</button>
+        <button onclick="window.location.href='cart.html'">Back to Cart</button>
+
+        <script>
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const user = JSON.parse(localStorage.getItem("user")) || { _id: "demoUser", name: "Demo" };
+            const div = document.getElementById("checkoutCart");
+
+            function renderCheckout() {
+                div.innerHTML = "";
+                if(cart.length === 0){
+                    div.innerHTML = "<p>Your cart is empty.</p>";
+                    return;
+                }
+
+                let total = 0;
+                cart.forEach(p => {
+                    const itemTotal = p.price * p.qty;
+                    total += itemTotal;
+                    div.innerHTML += `
+                    <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+                        <p><strong>${p.name}</strong></p>
+                        <p>Price: $${p.price}</p>
+                        <p>Quantity: ${p.qty}</p>
+                        <p>Total: $${itemTotal}</p>
+                    </div>`;
+                });
+
+                document.getElementById("grandTotal").innerText = total;
+            }
+
+            function placeOrder() {
+                if(cart.length === 0){
+                    alert("Your cart is empty, Please choose some items!");
+                    return;
+                }
+
+                const total = cart.reduce((sum, p) => sum + p.price * p.qty, 0);
+
+                fetch("http://localhost:5000/api/orders", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        userId: user._id,
+                        products: cart,
+                        total: total,
+                        date: new Date()
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert("Order placed successfully!");
+                    localStorage.removeItem("cart");
+                    cart = [];
+                    renderCheckout();
+                    window.location.href = "index.html"; 
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Order failed. Check server.");
+                });
+            }
+
+            renderCheckout();
+        </script>
+    </body>
+</html>

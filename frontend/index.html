@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <title>E-commerce Store</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+    <div class="navbar">
+      <h2>E-Commerce Store</h2>
+      <div class="user-info">
+        Welcome, <strong id="userInfo"></strong>
+        <button onclick="logout()">Logout</button>
+        <a href="cart.html">View Cart</a>
+      </div>
+    </div>
+
+    <h1>Products Detail Page</h1>
+    <div id="products"></div>
+
+    <script>
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      if (!user) {
+        window.location.href = "login.html"; 
+      }
+
+      document.getElementById("userInfo").innerText = user.name;
+
+      fetch("http://localhost:5000/api/products")
+        .then((res) => res.json())
+        .then((data) => {
+          const div = document.getElementById("products");
+          div.innerHTML = "";
+
+          if (data.length === 0) {
+            div.innerHTML = "<p>No products available</p>";
+            return;
+          }
+
+          data.forEach((p) => {
+            div.innerHTML += `
+        <div style="border:1px solid #ccc; padding:10px; margin:10px">
+          <h3>${p.name}</h3>
+          <p>$${p.price}</p>
+          <p>Category: ${p.category}</p>
+          <p>Rating: ⭐ ${p.ratings}</p>
+          <button onclick='addToCart(${JSON.stringify(p)})'>Add to Cart</button>
+        </div>
+        <hr/>
+      `;
+          });
+        })
+        .catch((err) => console.error(err));
+
+      function addToCart(product) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart.push(product);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        alert("Product added to cart");
+      }
+
+      function logout() {
+        localStorage.removeItem("user");   
+        localStorage.removeItem("cart");   
+        window.location.href = "login.html";
+      }
+
+    </script>
+
+  </body>
+</html>

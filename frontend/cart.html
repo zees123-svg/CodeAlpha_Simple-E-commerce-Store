@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Shopping Cart</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"
+    />
+  </head>
+  <body>
+    <h1>Your Cart</h1>
+    <div id="cart"></div>
+    <button onclick="window.location.href = 'checkout.html'">
+      Proceed to Checkout
+    </button>
+    <button>
+      <a href="index.html">Back to Products</a>
+    </button>
+
+    <script>
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+      cart = cart.map((item) => ({ ...item, qty: item.qty ? item.qty : 1 }));
+      localStorage.setItem("cart", JSON.stringify(cart));
+
+      const div = document.getElementById("cart");
+
+      function renderCart() {
+        div.innerHTML = "";
+        if (cart.length === 0) {
+          div.innerHTML = "<p>Your cart is empty</p>";
+          return;
+        }
+
+        let total = 0;
+        cart.forEach((p, index) => {
+          const itemTotal = p.price * p.qty;
+          total += itemTotal;
+
+          div.innerHTML += `
+          <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+            <p><strong>${p.name}</strong></p>
+            <p>Price: $${p.price}</p>
+            <p>
+              Quantity: 
+              <input type="number" value="${p.qty}" min="1" onchange="updateQty(${index}, this.value)" />
+            </p>
+            <p>Total: $${itemTotal}</p>
+            <button onclick="removeItem(${index})">Remove</button>
+          </div>
+        `;
+        });
+
+        div.innerHTML += `<h3>Grand Total: $${total}</h3>`;
+      }
+
+      function updateQty(index, value) {
+        cart[index].qty = parseInt(value);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+      }
+
+      function removeItem(index) {
+        cart.splice(index, 1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+      }
+
+      renderCart();
+    </script>
+  </body>
+</html>

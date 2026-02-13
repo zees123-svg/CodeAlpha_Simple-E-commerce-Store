@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+    <head>
+        <title>User Registration</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    </head>
+    <body>
+        <h1>Register</h1>
+
+        <form id="registerForm">
+            <label>Name:</label><br />
+            <input type="text" name="name" required /><br /><br />
+
+            <label>Email:</label><br />
+            <input type="email" name="email" required /><br /><br />
+
+            <label>Password:</label><br />
+            <input type="password" name="password" required /><br /><br />
+
+            <button type="submit">Register</button>
+            </form>
+
+        <p id="message"></p>
+
+        <p>
+            If already register than login here!
+            <a href="login.html">Login</a>
+        </p>
+
+        <script>
+            const form = document.getElementById("registerForm");
+            const message = document.getElementById("message");
+
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const data = {
+                    name: form.name.value,
+                    email: form.email.value,
+                    password: form.password.value,
+                };
+
+                try {
+                    const response = await fetch("http://localhost:5000/api/auth/register", 
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data),
+                    });
+
+                    const result = await response.text();
+
+                    message.textContent = result;
+                    message.style.color = "green";
+                    form.reset();
+
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 1500);
+                } 
+                catch (err) {
+                    message.textContent = "Error: " + err.message;
+                    message.style.color = "red";
+                }
+            });
+        </script>
+    </body>
+</html>
